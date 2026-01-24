@@ -4,29 +4,30 @@ wilhelm_renderer is a minimalist 2D graphics engine written in Rust with native 
 Its goal is to provide a robust foundation for rendering 2D shapes and visualizing 2-dimensional 
 data in real time.
 
-The current (0.4.0) release offers low-level OpenGL bindings and basic rendering capabilities. 
-It is not yet production-ready. Future releases will expand the feature set with additional 
+The current release offers low-level OpenGL bindings and basic rendering capabilities.
+It is not yet production-ready. Future releases will expand the feature set with additional
 drawing primitives.
 
 ## ✨ Features
 
 Currently supported drawing primitives:
 
-- Points
-- Lines (with antialiasing and thickness)
+- Points and MultiPoints
+- Lines (with thickness)
 - Polylines
 - Arcs
-- Rectangles
+- Rectangles and Rounded Rectangles
 - Triangles
-- Circles
+- Circles and Ellipses
 - Polygons
 - Images
 
 Other features:
 - Bundled GLFW 3.4 (no external dependency required)
+- Instanced rendering for high-performance scenes (10k+ shapes)
 - Basic animation support
 - Basic zoom in/out support
-- Experimental svg output support
+- Experimental SVG output support
 
 ## 🚧 Status
 
@@ -40,40 +41,60 @@ of the **wilhelm_renderer** repository. These will be updated as new futures are
 Basic API usage is illustrated below:
 
 ```rust
-extern crate wilhelm_renderer;
-
 use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
-use wilhelm_renderer::graphics2d::shapes::Rectangle;
-use wilhelm_renderer::graphics2d::shapes::ShapeRenderable;
+use wilhelm_renderer::graphics2d::shapes::{
+    Circle, Line, Polyline, Rectangle, ShapeKind, ShapeRenderable, ShapeStyle,
+};
 
 fn main() {
     let window = Window::new("Shapes", 800, 800);
-    let mut app = App::new(window);
+    let renderer = Renderer::new(window.handle());
 
+    // Define styles
+    let green_stroke = ShapeStyle {
+        fill: None,
+        stroke_color: Some(Color::from_rgb(0.0, 1.0, 0.0)),
+        stroke_width: Some(2.0),
+    };
+    let red_stroke = ShapeStyle {
+        fill: None,
+        stroke_color: Some(Color::from_rgb(1.0, 0.0, 0.0)),
+        stroke_width: Some(10.0),
+    };
+    let blue_fill = ShapeStyle {
+        fill: Some(Color::from_rgb(0.0, 0.0, 1.0)),
+        stroke_color: None,
+        stroke_width: None,
+    };
+
+    // Create shapes using ShapeKind algebraic data types
     let mut shapes = vec![
-        ShapeRenderable::line(
-            100.0,
-            200.0,
-            300.0,
-            250.0,
-            Color::from_rgb(0.0, 1.0, 0.0),
-            1.0,
+        // Line from (100, 200) to (300, 250)
+        ShapeRenderable::from_shape(
+            100.0, 200.0,
+            ShapeKind::Line(Line::new(300.0, 250.0)),
+            green_stroke,
         ),
-        ShapeRenderable::polyline(
-            &[
-                (100.0, 300.0),
-                (150.0, 430.0),
-                (200.0, 410.0),
-                (200.0, 500.0),
-            ],
-            Color::from_rgb(1.0, 0.0, 0.0),
-            10.0,
-        )
+        // Polyline with relative points
+        ShapeRenderable::from_shape(
+            100.0, 300.0,
+            ShapeKind::Polyline(Polyline::new(vec![
+                (0.0, 0.0),
+                (50.0, 130.0),
+                (100.0, 110.0),
+                (100.0, 200.0),
+            ])),
+            red_stroke,
+        ),
+        // Circle at (400, 400) with radius 50
+        ShapeRenderable::from_shape(
+            400.0, 400.0,
+            ShapeKind::Circle(Circle::new(50.0)),
+            blue_fill,
+        ),
     ];
 
-    let renderer = Renderer::new();
-    renderer.set_point_size(6.0);
-
+    let mut app = App::new(window);
     app.on_render(move || {
         for shape in &mut shapes {
             shape.render(&renderer);
@@ -88,9 +109,11 @@ For a full example, see:
 ![Shapes](images/shapes.png)
 
 Additional examples:
-- shapes_with_zoom.rs – illustrates zoom in/out functionality
-- bouncing_balls – illustrates simple animation 
-*(run with `cargo run` inside the `examples/bouncing_balls` folder)*
+- `shapes_with_zoom.rs` – illustrates zoom in/out functionality
+- `instancing.rs` – demonstrates instanced rendering with 6000 shapes
+- `bouncing_balls/` – illustrates simple animation
+  *(run with `cargo run` inside the `examples/bouncing_balls` folder)*
+- `bouncing_balls_instanced/` – 10,000 bouncing balls using instanced rendering
 
 ## 📖 Docs
 tbd.
