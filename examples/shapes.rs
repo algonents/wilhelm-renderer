@@ -1,10 +1,7 @@
 extern crate wilhelm_renderer;
 
 use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
-use wilhelm_renderer::graphics2d::shapes::{
-    Arc, Circle, Ellipse, Line, MultiPoint, Polygon, Polyline, Rectangle, RoundedRectangle,
-    ShapeKind, ShapeRenderable, ShapeStyle, Triangle,
-};
+use wilhelm_renderer::graphics2d::shapes::{Arc, Circle, Ellipse, Line, MultiPoint, Polygon, Polyline, Rectangle, RoundedRectangle, ShapeKind, ShapeRenderable, ShapeStyle, Text, Triangle};
 
 fn create_equilateral_triangle() -> [(f32, f32); 3] {
     let side = 20.0;
@@ -60,12 +57,7 @@ fn main() {
     let mut app = App::new(window);
 
     // Convert polyline points to relative coordinates (relative to first point)
-    let polyline_points = vec![
-        (0.0, 0.0),
-        (50.0, 130.0),
-        (100.0, 110.0),
-        (100.0, 200.0),
-    ];
+    let polyline_points = vec![(0.0, 0.0), (50.0, 130.0), (100.0, 110.0), (100.0, 200.0)];
 
     // Convert sine wave points to relative coordinates
     let sine_wave_abs = generate_sine_wave(500.0, 100.0, 30.0, 20, 200.0);
@@ -91,6 +83,16 @@ fn main() {
         .collect();
 
     let mut shapes = vec![
+        // Create text with white color
+        ShapeRenderable::from_shape(
+            200.0,
+            5.0,
+            ShapeKind::Text(Text::new("Hello, Wilhelm Renderer!", "fonts/DejaVuSans.ttf", 32)),
+            ShapeStyle {
+                fill: Some(Color::from_rgb(0.90, 0.92, 0.88)),
+                ..Default::default()
+            },
+        ),
         // Line from (100, 200) to (300, 250)
         ShapeRenderable::from_shape(
             100.0,
