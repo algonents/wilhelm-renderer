@@ -11,7 +11,8 @@ use crate::graphics2d::shapes::{
 };
 use crate::graphics2d::svg::ToSvg;
 use glam::{Mat4, Vec3};
-use std::cell::OnceCell;
+use std::cell::{OnceCell, RefCell};
+use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::rc::Rc;
 
@@ -100,6 +101,43 @@ fn text_shader() -> Rc<Shader> {
         })
         .clone()
     })
+}
+
+/// Font cache key: (font_path, font_size)
+type FontCacheKey = (String, u32);
+
+thread_local! {
+    /// Global font cache - shares FontAtlas instances across text renderables.
+    /// Properly dropped when thread exits, no memory leaks.
+    static FONT_CACHE: RefCell<HashMap<FontCacheKey, Rc<RefCell<FontAtlas>>>> = RefCell::new(HashMap::new());
+}
+
+/// Get or create a FontAtlas from the cache
+fn get_or_create_font_atlas(font_path: &str, font_size: u32) -> Rc<RefCell<FontAtlas>> {
+    FONT_CACHE.with(|cache| {
+        let mut cache = cache.borrow_mut();
+        let key = (font_path.to_string(), font_size);
+
+        if let Some(atlas) = cache.get(&key) {
+            return atlas.clone();
+        }
+
+        // Create new FontAtlas and cache it
+        let atlas = FontAtlas::new(font_path, font_size, 512)
+            .expect("Failed to create font atlas");
+        let atlas_rc = Rc::new(RefCell::new(atlas));
+        cache.insert(key, atlas_rc.clone());
+        atlas_rc
+    })
+}
+
+/// Clear the font cache, releasing all FontAtlas resources.
+/// Call this when changing scenes or when fonts are no longer needed.
+/// Safe to call at any time - new text will recreate atlases as needed.
+pub fn clear_font_cache() {
+    FONT_CACHE.with(|cache| {
+        cache.borrow_mut().clear();
+    });
 }
 
 fn ortho_2d_with_zoom(width: f32, height: f32, zoom: f32) -> Mat4 {
@@ -383,23 +421,24 @@ impl ShapeRenderable {
     }
 
     fn text(x: f32, y: f32, text: Text, color: Color) -> Self {
-        // Create font atlas for this text
-        let mut font_atlas = FontAtlas::new(&text.font_path, text.font_size, 512)
-            .expect("Failed to create font atlas");
+        // Get or create font atlas from cache (shared across text renderables)
+        let font_atlas = get_or_create_font_atlas(&text.font_path, text.font_size);
 
         // Generate geometry for all characters
-        let geometry = ShapeRenderable::text_geometry(&text.content, &mut font_atlas);
+        let geometry = {
+            let mut atlas = font_atlas.borrow_mut();
+            ShapeRenderable::text_geometry(&text.content, &mut atlas)
+        };
+
+        // Get texture ID while holding borrow
+        let texture_id = font_atlas.borrow().texture_id();
 
         // Create mesh with text shader and font atlas texture
         let shader = text_shader();
-        let mut mesh = Mesh::with_texture(shader, geometry, Some(font_atlas.texture_id()));
+        let mut mesh = Mesh::with_texture(shader, geometry, Some(texture_id));
         mesh.color = Some(color);
 
-        // Store the font atlas in the mesh (we need to keep it alive)
-        // For now, we'll leak the atlas to keep the texture valid
-        // TODO: Add proper font atlas caching/management
-        std::mem::forget(font_atlas);
-
+        // FontAtlas is owned by FONT_CACHE, properly dropped when thread exits
         ShapeRenderable::new(x, y, mesh, ShapeKind::Text(text))
     }
 

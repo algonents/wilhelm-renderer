@@ -2,6 +2,7 @@ mod shaperenderable;
 
 pub use shaperenderable::ShapeRenderable;
 pub use shaperenderable::ShapeStyle;
+pub use shaperenderable::clear_font_cache;
 
 pub enum ShapeKind {
     Point,
