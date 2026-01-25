@@ -6,15 +6,15 @@ Features to add to the wilhelm-renderer library to support interactive 2D visual
 
 ---
 
-## Phase 1: Text Rendering (Critical Path)
+## Phase 1: Text Rendering ✓ Complete
 
-- [ ] Integrate font rasterization (`fontdue` or `ab_glyph` crate)
-- [ ] Generate font atlas texture at startup
-- [ ] Store glyph metrics and UV coordinates
-- [ ] Create text shader (instanced quads with texture sampling)
-- [ ] Implement `Text` struct with API: `Text::new(x, y, "label", font_size, color)`
-- [ ] Support text anchoring (left, center, right)
-- [ ] Batch multiple text draws into single draw call
+- [x] Integrate font rasterization (FreeType FFI - encapsulated wrapper)
+- [x] Font atlas with on-demand glyph caching (lazy loading)
+- [x] Store glyph metrics and UV coordinates
+- [x] Create text shader (instanced quads with texture sampling)
+- [x] Implement `Text` struct with API: `Text::new(x, y, "label", font_size, color)`
+- [x] Support text anchoring (left, center, right)I
+- [ ] Batch multiple text draws into single draw call (future optimization)
 
 ## Phase 2: Coordinate System & Projection
 
@@ -105,19 +105,19 @@ The current architecture uses 1 draw call per shape, which becomes a CPU bottlen
 
 ## Dependencies
 
-External crates to evaluate:
-- `fontdue` or `ab_glyph` - font rasterization for text rendering
-- `image` - already used, for font atlas
+External dependencies:
+- FreeType library - font rasterization via encapsulated FFI wrapper
+- `image` - already used, for font atlas and image loading
 
 ## Milestones
 
-| Milestone | Deliverable |
-|-----------|-------------|
-| M1 | Text rendering working |
-| M2 | Projection trait, picking/selection |
-| M3 | Pan/zoom controls |
-| M4 | Layer system |
-| M5 | Trail rendering, performance validated |
+| Milestone | Deliverable | Status |
+|-----------|-------------|--------|
+| M1 | Text rendering working | ✓ Complete |
+| M2 | Projection trait, picking/selection | Pending |
+| M3 | Pan/zoom controls | Pending |
+| M4 | Layer system | Pending |
+| M5 | Trail rendering, performance validated | Pending |
 
 ---
 

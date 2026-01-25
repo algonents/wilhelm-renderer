@@ -27,7 +27,7 @@ Technical debt and improvement areas identified in code review.
 
 ## API Design
 
-- [ ] `app.rs:25` - Make clear color configurable (hardcoded to `0.07, 0.13, 0.17`)
+- [x] `app.rs:25` - Make clear color configurable (hardcoded to `0.07, 0.13, 0.17`)
 - [ ] `shaperenderable.rs:11` - Make `SCALE_FACTOR` configurable (hardcoded to `1.0`)
 
 ## Performance
