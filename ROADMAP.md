@@ -13,7 +13,7 @@ Features to add to the wilhelm-renderer library to support interactive 2D visual
 - [x] Store glyph metrics and UV coordinates
 - [x] Create text shader (instanced quads with texture sampling)
 - [x] Implement `Text` struct with API: `Text::new(x, y, "label", font_size, color)`
-- [x] Support text anchoring (left, center, right)I
+- [x] Support text anchoring (left, center, right)
 - [ ] Batch multiple text draws into single draw call (future optimization)
 
 ## Phase 2: Coordinate System & Projection
