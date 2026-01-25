@@ -2,7 +2,7 @@ extern crate wilhelm_renderer;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use wilhelm_renderer::core::{App, Attribute, Geometry, Mesh, Renderer, Shader, Window};
+use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Renderer, Shader, Window};
 use wilhelm_renderer::core::engine::opengl::{GL_POINTS};
 
 static SWITZERLAND_BOUNDS: [f32; 4] = [5.956, 45.817, 10.492, 47.808];
@@ -21,7 +21,7 @@ fn main() {
         9.8355, 46.4908, // St-Moritz
     ];
 
-    let mut  window = Window::new("Hello, Switzerland", 800, 600);
+    let mut  window = Window::new("Hello, Switzerland", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
 
     window.on_scroll(move |_, y_offset| {
         MAP_BOUNDS.with(|bounds| {

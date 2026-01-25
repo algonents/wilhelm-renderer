@@ -19,7 +19,7 @@ const BALL_RADIUS: f32 = 10.0;
 fn main() {
     let mut balls = initialize_balls(50, 800.0, 600.0);
 
-    let window = Window::new("Bouncing Balls", 800, 600);
+    let window = Window::new("Bouncing Balls", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
 
     let renderer = Renderer::new(window.handle());
     renderer.set_point_size(6.0);

@@ -2,7 +2,7 @@ extern crate wilhelm_renderer;
 
 use std::rc::Rc;
 use glam::{Mat4, Vec3};
-use wilhelm_renderer::core::{App, Attribute, Geometry, Mesh, Renderer, Shader, Window};
+use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Renderer, Shader, Window};
 use wilhelm_renderer::core::engine::opengl::{GL_TRIANGLES, GLfloat};
 
 const SCALE_FACTOR: f32 = 2.0;
@@ -30,7 +30,7 @@ fn main() {
     ];
     let values_per_vertex = 2;
 
-    let window = Window::new("Transform", 800, 600);
+    let window = Window::new("Transform", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
     let mut geometry = Geometry::new(GL_TRIANGLES);
     geometry.add_buffer(&vertices, values_per_vertex);
     geometry.add_vertex_attribute(Attribute::new(0, 2, 2, 0));

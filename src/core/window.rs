@@ -1,7 +1,7 @@
 use std::cell::Cell;
 use std::ffi::c_void;
 use std::rc::Rc;
-
+use crate::core::Color;
 use crate::core::engine::opengl::{gl_clear_color, gl_viewport};
 use crate::core::engine::glfw::{GLFWwindow, glfw_create_window, glfw_destroy_window, glfw_get_window_content_scale, glfw_get_window_user_pointer, glfw_poll_events, glfw_set_cursor_pos_callback, glfw_set_scroll_callback, glfw_set_window_size_callback, glfw_set_window_user_pointer, glfw_swap_buffers, glfw_window_should_close};
 
@@ -10,6 +10,7 @@ use crate::core::engine::glfw::{GLFWwindow, glfw_create_window, glfw_destroy_win
 struct InnerWindow {
     width: Cell<i32>,
     height: Cell<i32>,
+    background_color: Cell<Color>,
 }
 
 pub struct Window {
@@ -63,7 +64,7 @@ extern "C" fn _on_cursor_position_callback(_window: *const GLFWwindow, x_pos: f6
 }
 
 impl Window {
-    pub fn new(title: &str, width: i32, height: i32) -> Box<Self> {
+    pub fn new(title: &str, width: i32, height: i32, background_color: Color) -> Box<Self> {
         let glfw_window = glfw_create_window(title, width, height, Some(_on_viewport_resized));
         // hook callbacks
         glfw_set_window_size_callback(glfw_window, Some(_on_window_resized_callback));
@@ -74,6 +75,7 @@ impl Window {
         let inner = Rc::new(InnerWindow {
             width: Cell::new(width),
             height: Cell::new(height),
+            background_color: Cell::new(background_color),
         });
 
         let mut window = Box::new(Window {
@@ -84,6 +86,7 @@ impl Window {
             on_cursor_position: None,
         });
         glfw_set_window_user_pointer(glfw_window, &mut *window as *mut _ as *mut c_void);
+        gl_clear_color(background_color.red_value(), background_color.green_value(), background_color.blue_value(), 1.0);
         window
     }
 
@@ -105,9 +108,9 @@ impl Window {
     pub fn content_scale(&self)->(f32, f32){
         glfw_get_window_content_scale(self.glfw_window)
     }
-    
-    pub fn clear_color(&self, red: f32, green: f32, blue: f32, alpha: f32) {
-        gl_clear_color(red, green, blue, alpha);
+
+    pub fn clear_color(&self) {
+        gl_clear_color(self.inner.background_color.get().red_value(), self.inner.background_color.get().green_value(), self.inner.background_color.get().blue_value(), 1.0);
     }
     pub fn window_should_close(&self) -> bool {
         glfw_window_should_close(self.glfw_window)
@@ -179,4 +182,6 @@ impl WindowHandle {
     pub fn height(&self) -> i32 {
         self.inner.height.get()
     }
+    #[inline]
+    pub fn background_color(&self) -> Color {self.inner.background_color.get()}
 }

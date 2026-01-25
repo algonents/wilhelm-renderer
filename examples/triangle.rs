@@ -1,11 +1,11 @@
 extern crate wilhelm_renderer;
 
 use std::rc::Rc;
-use wilhelm_renderer::core::{App, Attribute, Geometry, Mesh, Renderer, Shader, Window};
+use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Renderer, Shader, Window};
 use wilhelm_renderer::core::engine::opengl::{GLfloat, GL_TRIANGLES};
 
 fn main() {
-    let window = Window::new("Hello Window", 800, 600);
+    let window = Window::new("Hello Window", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
 
 
     let vertex_shader_source = include_str!("shaders/geometry.vert");
