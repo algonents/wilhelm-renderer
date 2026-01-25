@@ -22,7 +22,7 @@ impl<'a> App<'a> {
 
     pub fn run(mut self) {
         while !self.window.window_should_close() {
-            self.window.clear_color(0.07, 0.13, 0.17, 1.0);
+            self.window.clear_color();
 
             if let Some(cb) = self.render_callback.as_mut() {
                 cb();

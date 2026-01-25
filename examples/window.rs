@@ -4,10 +4,10 @@ use wilhelm_renderer::core::engine::glfw::{
     glfw_get_platform, GLFW_PLATFORM_WAYLAND, GLFW_PLATFORM_X11,
     GLFW_PLATFORM_COCOA, GLFW_PLATFORM_WIN32,
 };
-use wilhelm_renderer::core::{App, Window};
+use wilhelm_renderer::core::{App, Color, Window};
 
 fn main() {
-    let mut  window = Window::new("Hello Window", 800, 600);
+    let mut  window = Window::new("Hello Window", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
 
     let platform = glfw_get_platform();
     let platform_name = match platform {

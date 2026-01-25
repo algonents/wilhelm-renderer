@@ -4,7 +4,7 @@ use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
 use wilhelm_renderer::graphics2d::shapes::{ShapeKind, ShapeRenderable, ShapeStyle, Text};
 
 fn main() {
-    let window = Window::new("Text Rendering Example", 800, 600);
+    let window = Window::new("Text Rendering Example", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
     let renderer = Renderer::new(window.handle());
     let mut app = App::new(window);
 

@@ -51,7 +51,7 @@ fn fill_style(color: Color) -> ShapeStyle {
 }
 
 fn main() {
-    let window = Window::new("Shapes", 800, 800);
+    let window = Window::new("Shapes", 800, 800, Color::from_rgb(0.07, 0.13, 0.17));
     let renderer = Renderer::new(window.handle());
     renderer.set_point_size(6.0);
     let mut app = App::new(window);

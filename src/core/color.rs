@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Color{
     r:f32,
     g:f32,

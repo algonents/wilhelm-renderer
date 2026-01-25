@@ -32,7 +32,7 @@ fn main() {
         });
     }
 
-    let window = Window::new("WS Client Viewer", SCREEN_WIDTH, SCREEN_HEIGHT);
+    let window = Window::new("WS Client Viewer", SCREEN_WIDTH, SCREEN_HEIGHT, Color::from_rgb(0.07, 0.13, 0.17));
 
     let renderer = Renderer::new(window.handle());
     renderer.set_point_size(6.0);
