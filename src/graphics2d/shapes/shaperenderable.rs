@@ -30,8 +30,34 @@ impl Default for ShapeStyle {
     fn default() -> Self {
         Self {
             fill: Some(Color::from_rgb(1.0, 1.0, 1.0)),
-            stroke_color: Some(Color::from_rgb(1.0, 1.0, 1.0)),
-            stroke_width: Some(5.0),
+            stroke_color: None,
+            stroke_width: None,
+        }
+    }
+}
+
+impl ShapeStyle {
+    pub fn fill(fill: Color) -> Self {
+        Self {
+            fill: Some(fill),
+            stroke_color: None,
+            stroke_width: None,
+        }
+    }
+
+    pub fn stroke(color: Color, width: f32) -> Self {
+        Self {
+            fill: None,
+            stroke_color: Some(color),
+            stroke_width: Some(width),
+        }
+    }
+
+    pub fn fill_and_stroke(fill: Color, stroke: Color, width: f32) -> Self {
+        Self {
+            fill: Some(fill),
+            stroke_color: Some(stroke),
+            stroke_width: Some(width),
         }
     }
 }

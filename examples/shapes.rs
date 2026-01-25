@@ -15,9 +15,7 @@ fn create_equilateral_triangle() -> [(f32, f32); 3] {
     vertices
 }
 
-fn generate_sine_wave(
-    start_x: f32,
-    start_y: f32,
+fn generate_sine_wave_local(
     amplitude: f32,
     points: usize,
     wavelength: f32,
@@ -28,27 +26,13 @@ fn generate_sine_wave(
     for i in 0..points {
         let x = i as f32 * dx;
         let y = amplitude * (x / wavelength * std::f32::consts::TAU).sin();
-        result.push((start_x + x, start_y + y));
+        result.push((x, y));
     }
 
     result
 }
 
-fn stroke_style(color: Color, width: f32) -> ShapeStyle {
-    ShapeStyle {
-        fill: Some(color.clone()),
-        stroke_color: Some(color),
-        stroke_width: Some(width),
-    }
-}
 
-fn fill_style(color: Color) -> ShapeStyle {
-    ShapeStyle {
-        fill: Some(color),
-        stroke_color: None,
-        stroke_width: None,
-    }
-}
 
 fn main() {
     let window = Window::new("Shapes", 800, 800, Color::from_rgb(0.07, 0.13, 0.17));
@@ -59,28 +43,20 @@ fn main() {
     // Convert polyline points to relative coordinates (relative to first point)
     let polyline_points = vec![(0.0, 0.0), (50.0, 130.0), (100.0, 110.0), (100.0, 200.0)];
 
-    // Convert sine wave points to relative coordinates
-    let sine_wave_abs = generate_sine_wave(500.0, 100.0, 30.0, 20, 200.0);
-    let (sine_x, sine_y) = sine_wave_abs[0];
-    let sine_wave_rel: Vec<(f32, f32)> = sine_wave_abs
-        .iter()
-        .map(|(x, y)| (x - sine_x, y - sine_y))
-        .collect();
-
-    // Convert polygon points to relative coordinates
-    let polygon_abs = [
-        (600.0, 600.0),
-        (575.0, 643.3),
-        (525.0, 643.3),
-        (500.0, 600.0),
-        (525.0, 556.6),
-        (575.0, 556.6),
+    let polygon_local: Vec<(f32, f32)> = vec![
+        (0.0, 0.0),          // anchor vertex
+        (-25.0, 43.3),
+        (-75.0, 43.3),
+        (-100.0, 0.0),
+        (-75.0, -43.4),
+        (-25.0, -43.4),
     ];
-    let (poly_x, poly_y) = polygon_abs[0];
-    let polygon_rel: Vec<(f32, f32)> = polygon_abs
-        .iter()
-        .map(|(x, y)| (x - poly_x, y - poly_y))
-        .collect();
+
+    let sine_wave_local = generate_sine_wave_local(
+        30.0,   // amplitude
+        200,     // points
+        100.0,  // wavelength
+    );
 
     let mut shapes = vec![
         // Create text with white color
@@ -98,103 +74,96 @@ fn main() {
             100.0,
             200.0,
             ShapeKind::Line(Line::new(300.0, 250.0)),
-            stroke_style(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
+            ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
         ),
         // Polyline starting at (100, 300)
         ShapeRenderable::from_shape(
             100.0,
             300.0,
             ShapeKind::Polyline(Polyline::new(polyline_points)),
-            stroke_style(Color::from_rgb(1.0, 0.0, 0.0), 10.0),
+            ShapeStyle::stroke(Color::from_rgb(1.0, 0.0, 0.0), 10.0),
         ),
         // Arc centered at (700, 600)
         ShapeRenderable::from_shape(
             700.0,
             600.0,
             ShapeKind::Arc(Arc::new(70.0, 0.0, std::f32::consts::PI / 2.0)),
-            stroke_style(Color::from_rgb(0.0, 0.0, 1.0), 10.0),
+            ShapeStyle::stroke(Color::from_rgb(0.0, 0.0, 1.0), 10.0),
         ),
         // Rectangle at (50, 50)
         ShapeRenderable::from_shape(
             50.0,
             50.0,
             ShapeKind::Rectangle(Rectangle::new(200.0, 80.0)),
-            fill_style(Color::from_rgb(0.2, 0.5, 0.9)),
+            ShapeStyle::fill(Color::from_rgb(0.2, 0.5, 0.9)),
         ),
         // Triangle at (50, 50)
         ShapeRenderable::from_shape(
             50.0,
             50.0,
             ShapeKind::Triangle(Triangle::new(create_equilateral_triangle())),
-            fill_style(Color::from_rgb(1.0, 0.0, 0.0)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
         ),
         // Rectangle at (400, 200)
         ShapeRenderable::from_shape(
             400.0,
             200.0,
             ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
-            fill_style(Color::from_rgb(1.0, 0.0, 0.0)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
         ),
         // Circle at (400, 400)
         ShapeRenderable::from_shape(
             400.0,
             400.0,
             ShapeKind::Circle(Circle::new(50.0)),
-            fill_style(Color::from_rgb(0.0, 0.0, 1.0)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
         ),
         // Point at (600, 300)
         ShapeRenderable::from_shape(
             650.0,
             260.0,
             ShapeKind::Point,
-            fill_style(Color::from_rgb(1.0, 0.0, 0.0)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
         ),
         // MultiPoint (sine wave)
         ShapeRenderable::from_shape(
-            sine_x,
-            sine_y,
-            ShapeKind::MultiPoint(MultiPoint::new(sine_wave_rel)),
-            fill_style(Color::from_rgb(0.0, 0.0, 1.0)),
+            500.0,
+            100.0,
+            ShapeKind::MultiPoint(MultiPoint::new(sine_wave_local)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
         ),
         // Ellipse at (600, 200)
         ShapeRenderable::from_shape(
             600.0,
             200.0,
             ShapeKind::Ellipse(Ellipse::new(80.0, 40.0)),
-            fill_style(Color::from_rgb(0.5, 0.2, 0.8)),
+            ShapeStyle::fill(Color::from_rgb(0.5, 0.2, 0.8)),
         ),
         // Rounded rectangle at (100, 600)
         ShapeRenderable::from_shape(
             100.0,
             600.0,
             ShapeKind::RoundedRectangle(RoundedRectangle::new(200.0, 80.0, 10.0)),
-            fill_style(Color::from_rgb(0.3, 0.6, 0.9)),
+            ShapeStyle::fill(Color::from_rgb(0.3, 0.6, 0.9)),
         ),
         // Polygon (hexagon)
         ShapeRenderable::from_shape(
-            poly_x,
-            poly_y,
-            ShapeKind::Polygon(Polygon::new(polygon_rel)),
-            fill_style(Color::from_rgb(1.0, 0.0, 0.0)),
+            600.0,
+            600.0,
+            ShapeKind::Polygon(Polygon::new(polygon_local)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
         ),
         // Rectangle using from_shape
         ShapeRenderable::from_shape(
             600.0,
             400.0,
             ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
-            fill_style(Color::from_rgb(0.0, 1.0, 0.0)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 1.0, 0.0)),
         ),
         // Images (still use dedicated methods)
         ShapeRenderable::image_with_size(200.0, 520.0, "images/smiley.png", 40.0, 40.0),
         ShapeRenderable::image(400.0, 500.0, "images/bunny.png"),
     ];
-
-    /* Uncomment for svg output
-    let mut svg = SvgDocument::new(800.0, 800.0);
-    svg.add_shapes(&shapes);
-    svg.write_to_file("target/shapes.svg")
-        .expect("Failed to write SVG");
-    */
 
     app.on_render(move || {
         for shape in &mut shapes {
