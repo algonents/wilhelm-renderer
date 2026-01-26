@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision">
+
+  <defs>
+    <style>
+      .mesh {
+        stroke: #D52B1E;
+        stroke-width: 10;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+
+  <!-- Centered mesh mark -->
+  <g transform="translate(116, 116) scale(1.1)">
+    <g class="mesh">
+      <!-- Top -->
+      <path d="M20 30 L90 20 L160 40 L280 25"></path>
+      <path d="M90 20 L140 110 L160 40"></path>
+      <path d="M160 40 L220 120 L140 110"></path>
+      <path d="M160 40 L280 25 L220 120"></path>
+
+      <!-- Center -->
+      <path d="M140 110 L220 120 L160 200"></path>
+      <path d="M140 110 L160 200 L80 190"></path>
+      <path d="M140 110 L80 190 L30 140"></path>
+      <path d="M140 110 L30 140 L20 30"></path>
+      <path d="M220 120 L270 140 L240 190"></path>
+      <path d="M220 120 L240 190 L160 200"></path>
+
+      <!-- Bottom -->
+      <path d="M30 140 L80 190 L160 200 L240 190"></path>
+      <path d="M270 140 L240 190"></path>
+
+      <!-- Diagonal -->
+      <path d="M90 20 L30 140"></path>
+    </g>
+  </g>
+
+</svg>
