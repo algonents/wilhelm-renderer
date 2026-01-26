@@ -41,6 +41,14 @@ fn main() {
         let positions: Vec<Vec2> = balls.iter().map(|b| Vec2::new(b.x, b.y)).collect();
         dots.set_instance_positions(&positions);
     }
+    // assign a random color to each ball
+    {
+        let mut rng = rand::rng();
+        let colors: Vec<Color> = (0..balls.len())
+            .map(|_| Color::from_rgb(rand_f32(&mut rng), rand_f32(&mut rng), rand_f32(&mut rng)))
+            .collect();
+        dots.set_instance_colors(&colors);
+    }
 
     // Timekeeping
     let mut last_time = renderer.get_time();
