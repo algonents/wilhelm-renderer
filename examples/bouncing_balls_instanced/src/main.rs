@@ -17,14 +17,13 @@ struct Ball {
 const BALL_RADIUS: f32 = 5.0;
 
 fn main() {
-    let window = Window::new("Bouncing Balls — Instanced", 1600, 1200, Color::from_rgb(0.07, 0.13, 0.17));
+    let window = Window::new("Bouncing Balls — Instanced", 1280, 720, Color::from_rgb(0.07, 0.13, 0.17));
 
-    let mut balls = initialize_balls(10_000, 1600.0, 1200.0);
+    let mut balls = initialize_balls(10_000, window.width() as f32, window.height() as f32);
 
 
     let renderer = Renderer::new(window.handle());
-    renderer.set_point_size(6.0);
-
+    
     let mut dots = ShapeRenderable::from_shape(
         0.0,
         0.0,
@@ -40,6 +39,14 @@ fn main() {
     {
         let positions: Vec<Vec2> = balls.iter().map(|b| Vec2::new(b.x, b.y)).collect();
         dots.set_instance_positions(&positions);
+    }
+    // assign a random color to each ball
+    {
+        let mut rng = rand::rng();
+        let colors: Vec<Color> = (0..balls.len())
+            .map(|_| Color::from_rgb(rand_f32(&mut rng), rand_f32(&mut rng), rand_f32(&mut rng)))
+            .collect();
+        dots.set_instance_colors(&colors);
     }
 
     // Timekeeping
