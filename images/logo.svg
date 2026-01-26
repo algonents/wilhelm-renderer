@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 1600 600"
+     viewBox="0 0 1800 400"
      preserveAspectRatio="xMidYMid meet"
      shape-rendering="geometricPrecision"
      text-rendering="geometricPrecision">
@@ -19,13 +19,12 @@
   </defs>
 
   <!-- Text -->
-  <g transform="translate(160, 0)">
-    <text class="brand font" x="0" y="240" font-size="140">Wilhelm</text>
-    <text class="brand font" x="0" y="390" font-size="140">Renderer</text>
+  <g transform="translate(80, 260)">
+    <text class="brand font" font-size="140">Wilhelm Renderer</text>
   </g>
 
   <!-- Mesh -->
-  <g transform="translate(900, 160)">
+  <g transform="translate(1300, 90) scale(1.05)">
     <g class="mesh">
       <!-- Top -->
       <path d="M20 30 L90 20 L160 40 L280 25"/>
