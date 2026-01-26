@@ -23,8 +23,7 @@ fn main() {
 
 
     let renderer = Renderer::new(window.handle());
-    renderer.set_point_size(6.0);
-
+    
     let mut dots = ShapeRenderable::from_shape(
         0.0,
         0.0,
