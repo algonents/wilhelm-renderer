@@ -57,93 +57,95 @@ fn main() {
         100.0,  // wavelength
     );
 
-    // Create text with white color
-    app.add_shape(ShapeRenderable::from_shape(
-        160.0, 280.0,
-        ShapeKind::Text(Text::new("Hello, Wilhelm renderer!", "fonts/ArchitectsDaughter-Regular.ttf", 48)),
-        ShapeStyle::fill(Color::from_rgb(0.94, 0.91, 0.78)),
-    ));
-    // Line from (100, 200) to (300, 250)
-    app.add_shape(ShapeRenderable::from_shape(
-        100.0, 200.0,
-        ShapeKind::Line(Line::new(300.0, 250.0)),
-        ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
-    ));
-    // Polyline starting at (100, 300)
-    app.add_shape(ShapeRenderable::from_shape(
-        100.0, 300.0,
-        ShapeKind::Polyline(Polyline::new(polyline_points)),
-        ShapeStyle::stroke(Color::from_rgb(1.0, 0.0, 0.0), 10.0),
-    ));
-    // Arc centered at (700, 600)
-    app.add_shape(ShapeRenderable::from_shape(
-        700.0, 600.0,
-        ShapeKind::Arc(Arc::new(70.0, 0.0, std::f32::consts::PI / 2.0)),
-        ShapeStyle::stroke(Color::from_rgb(0.0, 0.0, 1.0), 10.0),
-    ));
-    // Rectangle at (50, 50)
-    app.add_shape(ShapeRenderable::from_shape(
-        50.0, 50.0,
-        ShapeKind::Rectangle(Rectangle::new(200.0, 80.0)),
-        ShapeStyle::fill(Color::from_rgb(0.2, 0.5, 0.9)),
-    ));
-    // Triangle at (50, 50)
-    app.add_shape(ShapeRenderable::from_shape(
-        50.0, 50.0,
-        ShapeKind::Triangle(Triangle::new(create_equilateral_triangle())),
-        ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
-    ));
-    // Rectangle at (400, 200)
-    app.add_shape(ShapeRenderable::from_shape(
-        400.0, 200.0,
-        ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
-        ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
-    ));
-    // Circle at (400, 400)
-    app.add_shape(ShapeRenderable::from_shape(
-        400.0, 400.0,
-        ShapeKind::Circle(Circle::new(50.0)),
-        ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
-    ));
-    // Point at (650, 260)
-    app.add_shape(ShapeRenderable::from_shape(
-        650.0, 260.0,
-        ShapeKind::Point,
-        ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
-    ));
-    // MultiPoint (sine wave)
-    app.add_shape(ShapeRenderable::from_shape(
-        500.0, 100.0,
-        ShapeKind::MultiPoint(MultiPoint::new(sine_wave_local)),
-        ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
-    ));
-    // Ellipse at (600, 200)
-    app.add_shape(ShapeRenderable::from_shape(
-        600.0, 200.0,
-        ShapeKind::Ellipse(Ellipse::new(80.0, 40.0)),
-        ShapeStyle::fill(Color::from_rgb(0.5, 0.2, 0.8)),
-    ));
-    // Rounded rectangle at (100, 600)
-    app.add_shape(ShapeRenderable::from_shape(
-        100.0, 600.0,
-        ShapeKind::RoundedRectangle(RoundedRectangle::new(200.0, 80.0, 10.0)),
-        ShapeStyle::fill(Color::from_rgb(0.3, 0.6, 0.9)),
-    ));
-    // Polygon (hexagon)
-    app.add_shape(ShapeRenderable::from_shape(
-        600.0, 600.0,
-        ShapeKind::Polygon(Polygon::new(polygon_local)),
-        ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
-    ));
-    // Rectangle at (600, 400)
-    app.add_shape(ShapeRenderable::from_shape(
-        600.0, 400.0,
-        ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
-        ShapeStyle::fill(Color::from_rgb(0.0, 1.0, 0.0)),
-    ));
-    // Images
-    app.add_shape(ShapeRenderable::image_with_size(200.0, 520.0, "images/smiley.png", 40.0, 40.0));
-    app.add_shape(ShapeRenderable::image(400.0, 500.0, "images/bunny.png"));
+    app.add_shapes(vec![
+        // Text
+        ShapeRenderable::from_shape(
+            160.0, 280.0,
+            ShapeKind::Text(Text::new("Hello, Wilhelm renderer!", "fonts/ArchitectsDaughter-Regular.ttf", 48)),
+            ShapeStyle::fill(Color::from_rgb(0.94, 0.91, 0.78)),
+        ),
+        // Line from (100, 200) to (300, 250)
+        ShapeRenderable::from_shape(
+            100.0, 200.0,
+            ShapeKind::Line(Line::new(300.0, 250.0)),
+            ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
+        ),
+        // Polyline starting at (100, 300)
+        ShapeRenderable::from_shape(
+            100.0, 300.0,
+            ShapeKind::Polyline(Polyline::new(polyline_points)),
+            ShapeStyle::stroke(Color::from_rgb(1.0, 0.0, 0.0), 10.0),
+        ),
+        // Arc centered at (700, 600)
+        ShapeRenderable::from_shape(
+            700.0, 600.0,
+            ShapeKind::Arc(Arc::new(70.0, 0.0, std::f32::consts::PI / 2.0)),
+            ShapeStyle::stroke(Color::from_rgb(0.0, 0.0, 1.0), 10.0),
+        ),
+        // Rectangle at (50, 50)
+        ShapeRenderable::from_shape(
+            50.0, 50.0,
+            ShapeKind::Rectangle(Rectangle::new(200.0, 80.0)),
+            ShapeStyle::fill(Color::from_rgb(0.2, 0.5, 0.9)),
+        ),
+        // Triangle at (50, 50)
+        ShapeRenderable::from_shape(
+            50.0, 50.0,
+            ShapeKind::Triangle(Triangle::new(create_equilateral_triangle())),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
+        ),
+        // Rectangle at (400, 200)
+        ShapeRenderable::from_shape(
+            400.0, 200.0,
+            ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
+        ),
+        // Circle at (400, 400)
+        ShapeRenderable::from_shape(
+            400.0, 400.0,
+            ShapeKind::Circle(Circle::new(50.0)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
+        ),
+        // Point at (650, 260)
+        ShapeRenderable::from_shape(
+            650.0, 260.0,
+            ShapeKind::Point,
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
+        ),
+        // MultiPoint (sine wave)
+        ShapeRenderable::from_shape(
+            500.0, 100.0,
+            ShapeKind::MultiPoint(MultiPoint::new(sine_wave_local)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 0.0, 1.0)),
+        ),
+        // Ellipse at (600, 200)
+        ShapeRenderable::from_shape(
+            600.0, 200.0,
+            ShapeKind::Ellipse(Ellipse::new(80.0, 40.0)),
+            ShapeStyle::fill(Color::from_rgb(0.5, 0.2, 0.8)),
+        ),
+        // Rounded rectangle at (100, 600)
+        ShapeRenderable::from_shape(
+            100.0, 600.0,
+            ShapeKind::RoundedRectangle(RoundedRectangle::new(200.0, 80.0, 10.0)),
+            ShapeStyle::fill(Color::from_rgb(0.3, 0.6, 0.9)),
+        ),
+        // Polygon (hexagon)
+        ShapeRenderable::from_shape(
+            600.0, 600.0,
+            ShapeKind::Polygon(Polygon::new(polygon_local)),
+            ShapeStyle::fill(Color::from_rgb(1.0, 0.0, 0.0)),
+        ),
+        // Rectangle at (600, 400)
+        ShapeRenderable::from_shape(
+            600.0, 400.0,
+            ShapeKind::Rectangle(Rectangle::new(100.0, 50.0)),
+            ShapeStyle::fill(Color::from_rgb(0.0, 1.0, 0.0)),
+        ),
+        // Images
+        ShapeRenderable::image_with_size(200.0, 520.0, "images/smiley.png", 40.0, 40.0),
+        ShapeRenderable::image(400.0, 500.0, "images/bunny.png"),
+    ]);
 
     app.run();
 }
