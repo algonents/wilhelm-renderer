@@ -41,49 +41,36 @@ You can build shapes and render them using the `ShapeRenderable` abstraction, as
 ```rust
 extern crate wilhelm_renderer;
 
-use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
-use wilhelm_renderer::graphics2d::shapes::{Arc, Circle, Ellipse, Line, MultiPoint, Polygon, Polyline, Rectangle, RoundedRectangle, ShapeKind, ShapeRenderable, ShapeStyle, Text, Triangle};
+use wilhelm_renderer::core::{App, Color, Window};
+use wilhelm_renderer::graphics2d::shapes::{Line, Rectangle, ShapeKind, ShapeRenderable, ShapeStyle, Text};
 
 fn main() {
   let window = Window::new("Shapes", 800, 800, Color::from_rgb(0.07, 0.13, 0.17));
-  let renderer = Renderer::new(window.handle());
   let mut app = App::new(window);
-  
-  let mut shapes = vec![
-    // Create text with white color
+
+  app.add_shapes(vec![
+    // Text
     ShapeRenderable::from_shape(
-      160.0,
-      280.0,
+      160.0, 280.0,
       ShapeKind::Text(Text::new("Hello, Wilhelm renderer!", "fonts/ArchitectsDaughter-Regular.ttf", 48)),
-      ShapeStyle {
-        fill: Some(Color::from_rgb(0.94, 0.91, 0.78)),
-        ..Default::default()
-      },
+      ShapeStyle::fill(Color::from_rgb(0.94, 0.91, 0.78)),
     ),
     // Line from (100, 200) to (300, 250)
     ShapeRenderable::from_shape(
-      100.0,
-      200.0,
+      100.0, 200.0,
       ShapeKind::Line(Line::new(300.0, 250.0)),
       ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
     ),
     // Rectangle at (50, 50)
     ShapeRenderable::from_shape(
-      50.0,
-      50.0,
+      50.0, 50.0,
       ShapeKind::Rectangle(Rectangle::new(200.0, 80.0)),
       ShapeStyle::fill(Color::from_rgb(0.2, 0.5, 0.9)),
     ),
-  
-  ];
-  app.on_render(move || {
-    for shape in &mut shapes {
-      shape.render(&renderer);
-    }
-  });
+  ]);
+
   app.run();
 }
-
 ```
 For a full example, see [shapes.rs](https://github.com/algonents/wilhelm-renderer/tree/master/examples/shapes.rs).
 
