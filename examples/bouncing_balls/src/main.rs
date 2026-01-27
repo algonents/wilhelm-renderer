@@ -1,6 +1,6 @@
 extern crate wilhelm_renderer;
 
-use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
+use wilhelm_renderer::core::{App, Color, Window};
 use wilhelm_renderer::graphics2d::shapes::{Circle, ShapeKind, ShapeRenderable, ShapeStyle};
 
 use rand::{rngs::ThreadRng, Rng};
@@ -20,67 +20,57 @@ fn main() {
     let mut balls = initialize_balls(50, 800.0, 600.0);
 
     let window = Window::new("Bouncing Balls", 800, 600, Color::from_rgb(0.07, 0.13, 0.17));
-
-    let renderer = Renderer::new(window.handle());
-    renderer.set_point_size(6.0);
-
-    // 3) Create one ShapeRenderable per ball (AFTER OpenGL context exists)
-    let mut rng = rand::rng();
-
-    let mut shapes: Vec<ShapeRenderable> = (0..balls.len())
-        .map(|_| {
-            ShapeRenderable::from_shape(
-                0.0,
-                0.0,
-                ShapeKind::Circle(Circle::new(BALL_RADIUS)),
-                ShapeStyle {
-                    fill: Some(Color::from_rgb(
-                        rand_f32(&mut rng),
-                        rand_f32(&mut rng),
-                        rand_f32(&mut rng),
-                    )),
-                    stroke_color: None,
-                    stroke_width: None,
-                },
-            )
-        })
-        .collect();
-
-    // 4) Timekeeping for per-frame delta
-    let mut last_time = renderer.get_time();
-
-    let h_wnd = window.handle();
     let mut app = App::new(window);
+    app.renderer().set_point_size(6.0);
 
-    // 5) Render loop: update physics, update shapes, render
-    app.on_render(move || {
+    let mut rng = rand::rng();
+    app.add_shapes(
+        (0..balls.len())
+            .map(|_| {
+                ShapeRenderable::from_shape(
+                    0.0, 0.0,
+                    ShapeKind::Circle(Circle::new(BALL_RADIUS)),
+                    ShapeStyle {
+                        fill: Some(Color::from_rgb(
+                            rand_f32(&mut rng),
+                            rand_f32(&mut rng),
+                            rand_f32(&mut rng),
+                        )),
+                        stroke_color: None,
+                        stroke_width: None,
+                    },
+                )
+            })
+            .collect(),
+    );
+
+    let mut last_time = app.renderer().get_time();
+
+    app.on_pre_render(move |shapes, renderer| {
         let current_time = renderer.get_time();
         let dt = (current_time - last_time) as f32;
         last_time = current_time;
 
-        // -- update physics
+        let (w, h) = renderer.window_handle.size();
+        let w = w as f32;
+        let h = h as f32;
+
         for ball in balls.iter_mut() {
-            // integrate
             ball.x += ball.vx * dt;
             ball.y += ball.vy * dt;
 
-            // bounce X
-            if ball.x - BALL_RADIUS < 0.0 || ball.x + BALL_RADIUS > h_wnd.width() as f32 {
+            if ball.x - BALL_RADIUS < 0.0 || ball.x + BALL_RADIUS > w {
                 ball.vx = -ball.vx;
-                ball.x = ball.x.clamp(BALL_RADIUS, h_wnd.width() as f32 - BALL_RADIUS);
+                ball.x = ball.x.clamp(BALL_RADIUS, w - BALL_RADIUS);
             }
-
-            // bounce Y
-            if ball.y - BALL_RADIUS < 0.0 || ball.y + BALL_RADIUS > h_wnd.height() as f32 {
+            if ball.y - BALL_RADIUS < 0.0 || ball.y + BALL_RADIUS > h {
                 ball.vy = -ball.vy;
-                ball.y = ball.y.clamp(BALL_RADIUS, h_wnd.height() as f32 - BALL_RADIUS);
+                ball.y = ball.y.clamp(BALL_RADIUS, h - BALL_RADIUS);
             }
         }
 
-        // -- update shapes and render
         for (shape, ball) in shapes.iter_mut().zip(balls.iter()) {
             shape.set_position(ball.x, ball.y);
-            shape.render(&renderer);
         }
     });
 

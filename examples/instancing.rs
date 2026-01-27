@@ -1,6 +1,6 @@
 extern crate wilhelm_renderer;
 
-use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Vec2, Window};
+use wilhelm_renderer::core::{App, Color, Vec2, Window};
 use wilhelm_renderer::graphics2d::shapes::{Circle, ShapeKind, ShapeRenderable, ShapeStyle};
 
 const WIDTH: i32 = 1600;
@@ -18,12 +18,12 @@ const STEEL_BLUE: (f32, f32, f32) = (0.274510, 0.509804, 0.705882);
 fn main() {
     let mut window = Window::new("Instancing Demo", WIDTH, HEIGHT, Color::from_rgb(0.07, 0.13, 0.17));
     window.on_resize(|w, h| println!("Window resized: {}x{}", w, h));
-    let renderer = Renderer::new(window.handle());
+
+    let mut app = App::new(window);
 
     // One shape, many instances
     let mut dots = ShapeRenderable::from_shape(
-        0.0,
-        0.0,
+        0.0, 0.0,
         ShapeKind::Circle(Circle::new(RADIUS)),
         ShapeStyle {
             fill: Some(Color::from_rgb(STEEL_BLUE.0, STEEL_BLUE.1, STEEL_BLUE.2)),
@@ -43,7 +43,6 @@ fn main() {
                 ORIGIN_X + i as f32 * SPACING,
                 ORIGIN_Y + j as f32 * SPACING,
             ));
-            // Gradient: red increases left-to-right, blue increases top-to-bottom
             let r = i as f32 / COLS as f32;
             let b = j as f32 / ROWS as f32;
             let g = 0.4;
@@ -55,23 +54,17 @@ fn main() {
     dots.set_instance_positions(&positions);
     dots.set_instance_colors(&colors);
 
-    let mut app = App::new(window);
+    app.add_shape(dots);
 
-    // render loop
-    app.on_render(move || {
-        // Compute dt (if you want time-based motion later)
-        let now = renderer.get_time();
-
-        // "Wiggle" deformation (feel free to swap with your physics later)
-        let t = now as f32;
+    app.on_pre_render(move |shapes, renderer| {
+        let t = renderer.get_time() as f32;
         let wiggle = (t * 2.0).sin() * 3.0;
 
         for (dst, base) in positions.iter_mut().zip(base_positions.iter()) {
             *dst = Vec2::new(base.x + wiggle, base.y + wiggle);
         }
 
-        dots.set_instance_positions(&positions);
-        dots.render(&renderer);
+        shapes[0].set_instance_positions(&positions);
     });
 
     app.run();

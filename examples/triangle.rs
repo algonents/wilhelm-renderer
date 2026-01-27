@@ -1,7 +1,7 @@
 extern crate wilhelm_renderer;
 
 use std::rc::Rc;
-use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Renderer, Shader, Window};
+use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Shader, Window};
 use wilhelm_renderer::core::engine::opengl::{GLfloat, GL_TRIANGLES};
 
 fn main() {
@@ -43,10 +43,9 @@ fn main() {
 
     let mesh = Mesh::new(Rc::new(shader), geometry);
 
-    let renderer = Renderer::new(window.handle());
     let mut app = App::new(window);
 
-    app.on_render(move || {
+    app.on_render(move |renderer| {
         renderer.draw_mesh(&mesh)
     });
     app.run();

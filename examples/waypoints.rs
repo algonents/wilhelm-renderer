@@ -2,7 +2,7 @@
 //!
 //! Each waypoint is defined in WGS84 (longitude, latitude) and projected
 //! to screen coordinates via Mercator + Camera2D. Waypoints are rendered
-//! as small triangles using ShapeRenderable.
+//! as small triangles with labels using ShapeRenderable.
 //!
 //! - Scroll wheel: zoom in/out (zooms toward cursor)
 
@@ -10,7 +10,7 @@ extern crate wilhelm_renderer;
 
 use std::cell::Cell;
 use wilhelm_renderer::core::{
-    App, Camera2D, Color, Projection, Renderable, Renderer, Vec2, Window,
+    App, Camera2D, Color, Projection, Vec2, Window,
     wgs84_to_mercator,
 };
 use wilhelm_renderer::graphics2d::shapes::{ShapeKind, ShapeRenderable, ShapeStyle, Text, Triangle};
@@ -21,53 +21,8 @@ thread_local! {
     static MOUSE_POS: Cell<(f64, f64)> = Cell::new((0.0, 0.0));
 }
 
-struct Waypoint {
-    /// Position in Mercator meters (Y negated for screen-down convention).
-    mercator: Vec2,
-    marker: ShapeRenderable,
-    label: ShapeRenderable,
-}
-
 const FONT_PATH: &str = "fonts/DejaVuSans.ttf";
 const FONT_SIZE: u32 = 11;
-
-impl Waypoint {
-    fn new(lon: f32, lat: f32, name: &str, color: Color) -> Self {
-        let m = wgs84_to_mercator(Vec2::new(lon, lat));
-        // Negate Y: Mercator Y increases northward, screen Y increases downward.
-        let mercator = Vec2::new(m.x, -m.y);
-
-        let triangle = Triangle::new([(-4.0, 3.0), (4.0, 3.0), (0.0, -5.0)]);
-        let marker = ShapeRenderable::from_shape(
-            0.0, 0.0,
-            ShapeKind::Triangle(triangle),
-            ShapeStyle::fill(color),
-        );
-
-        let text = Text::new(name, FONT_PATH, FONT_SIZE);
-        let label = ShapeRenderable::from_shape(
-            0.0, 0.0,
-            ShapeKind::Text(text),
-            ShapeStyle::fill(color),
-        );
-
-        Self { mercator, marker, label }
-    }
-
-    fn update_and_render(&mut self, camera: &Camera2D, renderer: &Renderer) {
-        let screen_pos = camera.world_to_screen(self.mercator);
-
-        self.marker.set_position(screen_pos.x, screen_pos.y);
-        self.marker.render(renderer);
-
-        // Position label to the right of the marker, vertically centered
-        self.label.set_position(
-            screen_pos.x + 8.0,
-            screen_pos.y - (FONT_SIZE as f32) / 2.0,
-        );
-        self.label.render(renderer);
-    }
-}
 
 fn main() {
     let waypoint_data: &[(f32, f32, &str)] = &[
@@ -84,10 +39,9 @@ fn main() {
         800, 600,
         Color::from_rgb(0.07, 0.13, 0.17),
     );
-    let renderer = Renderer::new(window.handle());
 
-    // Convert waypoints to Mercator and compute bounding box for initial view
-    let mercator_points: Vec<Vec2> = waypoint_data
+    // Convert waypoints to Mercator positions (state)
+    let mercator_positions: Vec<Vec2> = waypoint_data
         .iter()
         .map(|(lon, lat, _)| {
             let m = wgs84_to_mercator(Vec2::new(*lon, *lat));
@@ -95,26 +49,19 @@ fn main() {
         })
         .collect();
 
-    let min_x = mercator_points.iter().map(|p| p.x).fold(f32::MAX, f32::min);
-    let max_x = mercator_points.iter().map(|p| p.x).fold(f32::MIN, f32::max);
-    let min_y = mercator_points.iter().map(|p| p.y).fold(f32::MAX, f32::min);
-    let max_y = mercator_points.iter().map(|p| p.y).fold(f32::MIN, f32::max);
+    // Compute bounding box for initial camera view
+    let min_x = mercator_positions.iter().map(|p| p.x).fold(f32::MAX, f32::min);
+    let max_x = mercator_positions.iter().map(|p| p.x).fold(f32::MIN, f32::max);
+    let min_y = mercator_positions.iter().map(|p| p.y).fold(f32::MAX, f32::min);
+    let max_y = mercator_positions.iter().map(|p| p.y).fold(f32::MIN, f32::max);
 
     let center = Vec2::new((min_x + max_x) / 2.0, (min_y + max_y) / 2.0);
     let range_x = max_x - min_x;
     let range_y = max_y - min_y;
-    // Fit all waypoints with padding
     let initial_scale = (700.0 / range_x).min(500.0 / range_y);
 
     CAMERA_CENTER.with(|c| c.set((center.x, center.y)));
     CAMERA_SCALE.with(|s| s.set(initial_scale));
-
-    // Create waypoint renderables
-    let color = Color::from_rgb(0.2, 0.6, 1.0);
-    let mut waypoints: Vec<Waypoint> = waypoint_data
-        .iter()
-        .map(|(lon, lat, name)| Waypoint::new(*lon, *lat, name, color))
-        .collect();
 
     // Scroll to zoom at cursor
     window.on_scroll(move |_, y_offset| {
@@ -143,7 +90,26 @@ fn main() {
 
     let mut app = App::new(window);
 
-    app.on_render(move || {
+    // Build shapes: [marker0, label0, marker1, label1, ...] -- 2 per waypoint
+    let color = Color::from_rgb(0.2, 0.6, 1.0);
+    let triangle = Triangle::new([(-4.0, 3.0), (4.0, 3.0), (0.0, -5.0)]);
+
+    let mut shapes = Vec::with_capacity(waypoint_data.len() * 2);
+    for (_lon, _lat, name) in waypoint_data {
+        shapes.push(ShapeRenderable::from_shape(
+            0.0, 0.0,
+            ShapeKind::Triangle(triangle.clone()),
+            ShapeStyle::fill(color),
+        ));
+        shapes.push(ShapeRenderable::from_shape(
+            0.0, 0.0,
+            ShapeKind::Text(Text::new(*name, FONT_PATH, FONT_SIZE)),
+            ShapeStyle::fill(color),
+        ));
+    }
+    app.add_shapes(shapes);
+
+    app.on_pre_render(move |shapes, _renderer| {
         let center = CAMERA_CENTER.with(|c| c.get());
         let scale = CAMERA_SCALE.with(|s| s.get());
 
@@ -153,8 +119,15 @@ fn main() {
             Vec2::new(800.0, 600.0),
         );
 
-        for waypoint in &mut waypoints {
-            waypoint.update_and_render(&camera, &renderer);
+        for (i, mercator) in mercator_positions.iter().enumerate() {
+            let screen_pos = camera.world_to_screen(*mercator);
+            // marker at index 2*i
+            shapes[2 * i].set_position(screen_pos.x, screen_pos.y);
+            // label at index 2*i + 1
+            shapes[2 * i + 1].set_position(
+                screen_pos.x + 8.0,
+                screen_pos.y - (FONT_SIZE as f32) / 2.0,
+            );
         }
     });
 

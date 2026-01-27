@@ -2,7 +2,7 @@ extern crate wilhelm_renderer;
 
 use std::rc::Rc;
 use glam::{Mat4, Vec3};
-use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Renderer, Shader, Window};
+use wilhelm_renderer::core::{App, Attribute, Color, Geometry, Mesh, Shader, Window};
 use wilhelm_renderer::core::engine::opengl::{GL_TRIANGLES, GLfloat};
 
 const SCALE_FACTOR: f32 = 2.0;
@@ -42,11 +42,9 @@ fn main() {
         .expect("Failed to compile shader");
 
     let mut mesh = Mesh::new(Rc::new(shader), geometry);
-    let renderer = Renderer::new(window.handle());
     let mut app = App::new(window);
 
-    app.on_render(move || {
-        // Get current viewport size in case window was resized
+    app.on_render(move |renderer| {
         let (width, height) = renderer.window_handle.size();
 
         let transform = build_transform(width as f32, height as f32, renderer.get_time());
