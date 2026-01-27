@@ -4,12 +4,12 @@
 </p>
 
 wilhelm_renderer is a minimalist 2D graphics engine written in Rust with native OpenGL bindings. 
-Its goal is to provide a robust foundation for rendering 2D shapes and visualizing 2-dimensional 
-data and animations in real time.
+Its goal is to provide a robust foundation for rendering 2D shapes and visualizing
+2D data and animations in real time.
 
 ## 🚧 Status
 
-⚠️ *APIs are still evolving --  always use the latest release*.
+⚠️ *APIs are still evolving — always use the latest release.*
 
 ## ✨ Features
 
@@ -27,15 +27,16 @@ Currently supported drawing primitives:
 - Images
 
 Other features:
-- All dependencies are bundled 
-- Instanced rendering for high-performance scenes (10k+ shapes)
+- All dependencies, including GLFW and FreeType, are bundled
+- Instanced rendering for high-performance scenes (10,000+ shapes)
 - Basic animation support
+- A simple Camera model for projecting between world and screen coordinates
 
 ### 📦 Example usage
 
 All examples are provided in the **wilhelm_renderer** repository's `examples` [directory](https://github.com/algonents/wilhelm-renderer/tree/master/examples).
 
-You can build shapes and render them using the `ShapeRenderable` abstraction as illustrated next:
+You can build shapes and render them using the `ShapeRenderable` abstraction, as shown below:
 
 ```rust
 extern crate wilhelm_renderer;
@@ -84,20 +85,23 @@ fn main() {
 }
 
 ```
-For a full example, see [shapes.rs](https://github.com/algonents/wilhelm-renderer/tree/master/examples/shapes.rs)
+For a full example, see [shapes.rs](https://github.com/algonents/wilhelm-renderer/tree/master/examples/shapes.rs).
 
 ![Shapes](images/shapes.png)
 
 Additional examples:
-- `shapes_with_zoom.rs` – illustrates zoom in/out functionality
-- `instancing.rs` – demonstrates instanced rendering with 6000 shapes
-- `bouncing_balls/` – illustrates simple animation
-  *(run with `cargo run` inside the `examples/bouncing_balls` folder)*
-- `bouncing_balls_instanced/` – 10,000 bouncing balls using instanced rendering
+
+- `bouncing_balls.rs` – a simple animation example
+
+- `bouncing_balls_instanced.rs` – demonstrates instanced rendering with 10,000 animated balls
+  *(use `cargo run` inside the `examples/bouncing_balls` folder)*
+
+
+  ![Bouncing Balls](images/bouncing_balls_instanced.png)
 
 ## 🐞 Issues
 
-You can raise issues directly on [Github](https://github.com/algonents/wilhelm-renderer/issues).
+You can report issues directly on [GitHub](https://github.com/algonents/wilhelm-renderer/issues).
 
 ## 🔧 Installation
 
@@ -110,14 +114,14 @@ sudo apt-get install libgl1-mesa-dev
 sudo apt install mesa-utils
 sudo apt install libwayland-dev libxkbcommon-dev xorg-dev
 ```
-Add `wilhelm_renderer` as a dependency to your project. During the build process, 
-Cargo will invoke `CMake` to build a static library containing the `wilhelm_renderer` FFI bindings to OpenGL.
+Add `wilhelm_renderer` as a dependency in your project. During the build process,
+Cargo will invoke CMake to build a static library containing the `wilhelm_renderer` FFI bindings to OpenGL.
 
 ### Windows
 
-Ensure Visual C++ Build Tools and CMake 3.5 or later installed.
+Ensure that Visual C++ Build Tools and CMake 3.5 or later are installed.
 
 ### macOS
 
-Ensure the Xcode command-line tools and CMake 3.5 or later installed.
+Ensure that the Xcode command-line tools and CMake 3.5 or later are installed.
 
