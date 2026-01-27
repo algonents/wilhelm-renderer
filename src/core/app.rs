@@ -28,6 +28,10 @@ impl<'a> App<'a> {
         self.shapes.push(shape);
     }
 
+    pub fn add_shapes(&mut self, shapes: Vec<ShapeRenderable>) {
+        self.shapes.extend(shapes);
+    }
+
     pub fn shapes(&self) -> &[ShapeRenderable] {
         &self.shapes
     }
