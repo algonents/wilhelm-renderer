@@ -1,21 +1,57 @@
+use crate::core::renderer::{Renderable, Renderer};
 use crate::core::Window;
+use crate::graphics2d::shapes::ShapeRenderable;
 
 pub struct App<'a> {
     pub window: Box<Window>,
-    render_callback: Option<Box<dyn FnMut() + 'a>>,
+    renderer: Renderer,
+    shapes: Vec<ShapeRenderable>,
+    pre_render_callback: Option<Box<dyn FnMut(&mut [ShapeRenderable], &Renderer) + 'a>>,
+    render_callback: Option<Box<dyn FnMut(&Renderer) + 'a>>,
 }
 
 impl<'a> App<'a> {
     pub fn new(window: Box<Window>) -> Self {
+        let renderer = Renderer::new(window.handle());
         Self {
             window,
+            renderer,
+            shapes: Vec::new(),
+            pre_render_callback: None,
             render_callback: None,
         }
     }
-    
+
+    pub fn renderer(&self) -> &Renderer {
+        &self.renderer
+    }
+
+    pub fn add_shape(&mut self, shape: ShapeRenderable) {
+        self.shapes.push(shape);
+    }
+
+    pub fn add_shapes(&mut self, shapes: Vec<ShapeRenderable>) {
+        self.shapes.extend(shapes);
+    }
+
+    pub fn shapes(&self) -> &[ShapeRenderable] {
+        &self.shapes
+    }
+
+    pub fn shapes_mut(&mut self) -> &mut [ShapeRenderable] {
+        &mut self.shapes
+    }
+
+    pub fn on_pre_render<F>(&mut self, callback: F)
+    where
+        F: FnMut(&mut [ShapeRenderable], &Renderer) + 'a,
+    {
+        self.pre_render_callback = Some(Box::new(callback));
+    }
+
     pub fn on_render<F>(&mut self, callback: F)
     where
-        F: FnMut() + 'a,
+        F: FnMut(&Renderer) + 'a,
     {
         self.render_callback = Some(Box::new(callback));
     }
@@ -24,8 +60,16 @@ impl<'a> App<'a> {
         while !self.window.window_should_close() {
             self.window.clear_color();
 
+            if let Some(cb) = self.pre_render_callback.as_mut() {
+                cb(&mut self.shapes, &self.renderer);
+            }
+
+            for shape in &mut self.shapes {
+                shape.render(&self.renderer);
+            }
+
             if let Some(cb) = self.render_callback.as_mut() {
-                cb();
+                cb(&self.renderer);
             }
 
             self.window.swap_buffers();

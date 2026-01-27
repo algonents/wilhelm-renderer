@@ -1,4 +1,4 @@
-use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
+use wilhelm_renderer::core::{App, Color, Renderable, Window};
 use wilhelm_renderer::graphics2d::shapes::{Circle, ShapeKind, ShapeRenderable, ShapeStyle};
 
 use std::sync::{Arc, RwLock};
@@ -33,16 +33,13 @@ fn main() {
     }
 
     let window = Window::new("WS Client Viewer", SCREEN_WIDTH, SCREEN_HEIGHT, Color::from_rgb(0.07, 0.13, 0.17));
-
-    let renderer = Renderer::new(window.handle());
-    renderer.set_point_size(6.0);
-
     let mut app = App::new(window);
+    app.renderer().set_point_size(6.0);
 
     let mut shapes: Vec<ShapeRenderable> = Vec::new();
 
     let positions_render = Arc::clone(&positions);
-    app.on_render(move || {
+    app.on_render(move |renderer| {
         let pos_data = positions_render.read().unwrap();
 
         if pos_data.len() > shapes.len() {
@@ -62,7 +59,7 @@ fn main() {
 
         for (shape, snap) in shapes.iter_mut().zip(pos_data.iter()) {
             shape.set_position(snap.x, snap.y);
-            shape.render(&renderer);
+            shape.render(renderer);
         }
     });
 
