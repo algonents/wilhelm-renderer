@@ -64,10 +64,7 @@ fn main() {
             160.0,
             280.0,
             ShapeKind::Text(Text::new("Hello, Wilhelm renderer!", "fonts/ArchitectsDaughter-Regular.ttf", 48)),
-            ShapeStyle {
-                fill: Some(Color::from_rgb(0.94, 0.91, 0.78)),
-                ..Default::default()
-            },
+            ShapeStyle::fill(Color::from_rgb(0.94, 0.91, 0.78)),
         ),
         // Line from (100, 200) to (300, 250)
         ShapeRenderable::from_shape(

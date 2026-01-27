@@ -7,19 +7,15 @@ wilhelm_renderer is a minimalist 2D graphics engine written in Rust with native 
 Its goal is to provide a robust foundation for rendering 2D shapes and visualizing 2-dimensional 
 data and animations in real time.
 
-The current release offers low-level OpenGL bindings and basic rendering capabilities.
-It is not yet production-ready. Future releases will expand the feature set with additional
-drawing primitives.
-
 ## 🚧 Status
 
 ⚠️ *APIs are still evolving --  always use the latest release*.
-
 
 ## ✨ Features
 
 Currently supported drawing primitives:
 
+- Text rendering (using the FreeType library)
 - Points and MultiPoints
 - Lines (with thickness)
 - Polylines
@@ -31,84 +27,64 @@ Currently supported drawing primitives:
 - Images
 
 Other features:
-- Bundled GLFW 3.4 (no external dependency required)
+- All dependencies are bundled 
 - Instanced rendering for high-performance scenes (10k+ shapes)
 - Basic animation support
-- Basic zoom in/out support
-- Experimental SVG output support
 
-### 📦 Examples code
+### 📦 Example usage
 
-You can find usage examples in the [examples directory](https://github.com/algonents/wilhelm-renderer/tree/master/examples) 
-of the **wilhelm_renderer** repository. These will be updated as new futures are introduced.
+All examples are provided in the **wilhelm_renderer** repository's `examples` [directory](https://github.com/algonents/wilhelm-renderer/tree/master/examples).
 
-Basic API usage is illustrated below:
+You can build shapes and render them using the `ShapeRenderable` abstraction as illustrated next:
 
 ```rust
+extern crate wilhelm_renderer;
+
 use wilhelm_renderer::core::{App, Color, Renderable, Renderer, Window};
-use wilhelm_renderer::graphics2d::shapes::{
-    Circle, Line, Polyline, Rectangle, ShapeKind, ShapeRenderable, ShapeStyle,
-};
+use wilhelm_renderer::graphics2d::shapes::{Arc, Circle, Ellipse, Line, MultiPoint, Polygon, Polyline, Rectangle, RoundedRectangle, ShapeKind, ShapeRenderable, ShapeStyle, Text, Triangle};
 
 fn main() {
-    let window = Window::new("Shapes", 800, 800);
-    let renderer = Renderer::new(window.handle());
-
-    // Define styles
-    let green_stroke = ShapeStyle {
-        fill: None,
-        stroke_color: Some(Color::from_rgb(0.0, 1.0, 0.0)),
-        stroke_width: Some(2.0),
-    };
-    let red_stroke = ShapeStyle {
-        fill: None,
-        stroke_color: Some(Color::from_rgb(1.0, 0.0, 0.0)),
-        stroke_width: Some(10.0),
-    };
-    let blue_fill = ShapeStyle {
-        fill: Some(Color::from_rgb(0.0, 0.0, 1.0)),
-        stroke_color: None,
-        stroke_width: None,
-    };
-
-    // Create shapes using ShapeKind algebraic data types
-    let mut shapes = vec![
-        // Line from (100, 200) to (300, 250)
-        ShapeRenderable::from_shape(
-            100.0, 200.0,
-            ShapeKind::Line(Line::new(300.0, 250.0)),
-            green_stroke,
-        ),
-        // Polyline with relative points
-        ShapeRenderable::from_shape(
-            100.0, 300.0,
-            ShapeKind::Polyline(Polyline::new(vec![
-                (0.0, 0.0),
-                (50.0, 130.0),
-                (100.0, 110.0),
-                (100.0, 200.0),
-            ])),
-            red_stroke,
-        ),
-        // Circle at (400, 400) with radius 50
-        ShapeRenderable::from_shape(
-            400.0, 400.0,
-            ShapeKind::Circle(Circle::new(50.0)),
-            blue_fill,
-        ),
-    ];
-
-    let mut app = App::new(window);
-    app.on_render(move || {
-        for shape in &mut shapes {
-            shape.render(&renderer);
-        }
-    });
-    app.run();
+  let window = Window::new("Shapes", 800, 800, Color::from_rgb(0.07, 0.13, 0.17));
+  let renderer = Renderer::new(window.handle());
+  let mut app = App::new(window);
+  
+  let mut shapes = vec![
+    // Create text with white color
+    ShapeRenderable::from_shape(
+      160.0,
+      280.0,
+      ShapeKind::Text(Text::new("Hello, Wilhelm renderer!", "fonts/ArchitectsDaughter-Regular.ttf", 48)),
+      ShapeStyle {
+        fill: Some(Color::from_rgb(0.94, 0.91, 0.78)),
+        ..Default::default()
+      },
+    ),
+    // Line from (100, 200) to (300, 250)
+    ShapeRenderable::from_shape(
+      100.0,
+      200.0,
+      ShapeKind::Line(Line::new(300.0, 250.0)),
+      ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
+    ),
+    // Rectangle at (50, 50)
+    ShapeRenderable::from_shape(
+      50.0,
+      50.0,
+      ShapeKind::Rectangle(Rectangle::new(200.0, 80.0)),
+      ShapeStyle::fill(Color::from_rgb(0.2, 0.5, 0.9)),
+    ),
+  
+  ];
+  app.on_render(move || {
+    for shape in &mut shapes {
+      shape.render(&renderer);
+    }
+  });
+  app.run();
 }
+
 ```
-For a full example, see: 
-- [shapes.rs](https://github.com/algonents/wilhelm-renderer/tree/master/examples/shapes.rs)
+For a full example, see [shapes.rs](https://github.com/algonents/wilhelm-renderer/tree/master/examples/shapes.rs)
 
 ![Shapes](images/shapes.png)
 
@@ -119,14 +95,6 @@ Additional examples:
   *(run with `cargo run` inside the `examples/bouncing_balls` folder)*
 - `bouncing_balls_instanced/` – 10,000 bouncing balls using instanced rendering
 
-## 📖 Docs
-tbd.
-### Wiki
-
-Refer to the **wilhelm_renderer** GitHub [wiki](https://github.com/algonents/wilhelm-renderer/wiki), which will be updated soon.
-
-
-
 ## 🐞 Issues
 
 You can raise issues directly on [Github](https://github.com/algonents/wilhelm-renderer/issues).
@@ -135,63 +103,21 @@ You can raise issues directly on [Github](https://github.com/algonents/wilhelm-r
 
 ### Linux
 
-Make sure you have the necessary build tools installed (including a C/C++ compiler and CMake):
+Ensure you have the necessary build tools installed (including a C/C++ compiler and CMake):
 
 ```shell script
 sudo apt-get install libgl1-mesa-dev
 sudo apt install mesa-utils
-# libglfw3-dev is no longer required as of 0.4.0 (GLFW 3.4 is bundled)
-# sudo apt install libglfw3-dev
 sudo apt install libwayland-dev libxkbcommon-dev xorg-dev
 ```
-You can add wilhelm_renderer as a dependency in your project. During the build process, 
-Cargo will invoke CMake (using your system’s C/C++ compiler) to compile a static library 
-containing the wilhelm_renderer FFI bindings to OpenGL
-
-The FFI bindings are available in the 
-project's [cpp/ directory](https://github.com/algonents/wilhelm-renderer/tree/master/cpp)
-
+Add `wilhelm_renderer` as a dependency to your project. During the build process, 
+Cargo will invoke `CMake` to build a static library containing the `wilhelm_renderer` FFI bindings to OpenGL.
 
 ### Windows
 
-Ensure you have Visual C++ Build Tools and CMake installed.
-
-**For v0.4.0 and later**
-
-No external GLFW installation is required — GLFW 3.4 is bundled and statically compiled with wilhelm_renderer. 
-You only need a C/C++ compiler and CMake available in your environment.
-
-**For versions prior to 0.4.0**
-- Use release 0.1.7 or later (earlier versions did not support Windows)
-- Install GLFW using [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/overview):
-
-```shell script
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-.\vcpkg install glfw3
-```
-Update your system's environment variables:
-
-- Define the `VCPKG_LIB_PATH` environment variable to point to vcpkg's lib folder (where `glfw3.lib` is installed, 
-e.g `D:\PATH_TO\vcpkg\installed\x64-windows\lib`)
-- Add vcpkg's `bin` folder (where `glfw3.dll` is installed, e.g. `D:\PATH_TO\vcpkg\installed\x64-windows\bin`) to 
-your system PATH.
+Ensure Visual C++ Build Tools and CMake 3.5 or later installed.
 
 ### macOS
-You need a C/C++ compiler and CMake available in your environment.
 
-**For v0.4.0 and later**
-No external GLFW installation is required — GLFW 3.4 is bundled and statically compiled with *wilhelm_renderer*.
-
-**For versions prior to 0.4.0**
-
-- Install GLFW using [Homebrew](https://brew.sh/):
-
-```shell script
-brew install glfw
-brew info glfw
-```
-
-Once glfw is installed, the crate's build script will look for the glfw libraries under `/opt/homebrew/lib`
+Ensure the Xcode command-line tools and CMake 3.5 or later installed.
 
