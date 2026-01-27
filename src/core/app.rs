@@ -6,6 +6,7 @@ pub struct App<'a> {
     pub window: Box<Window>,
     renderer: Renderer,
     shapes: Vec<ShapeRenderable>,
+    pre_render_callback: Option<Box<dyn FnMut(&mut [ShapeRenderable], &Renderer) + 'a>>,
     render_callback: Option<Box<dyn FnMut() + 'a>>,
 }
 
@@ -16,6 +17,7 @@ impl<'a> App<'a> {
             window,
             renderer,
             shapes: Vec::new(),
+            pre_render_callback: None,
             render_callback: None,
         }
     }
@@ -40,6 +42,13 @@ impl<'a> App<'a> {
         &mut self.shapes
     }
 
+    pub fn on_pre_render<F>(&mut self, callback: F)
+    where
+        F: FnMut(&mut [ShapeRenderable], &Renderer) + 'a,
+    {
+        self.pre_render_callback = Some(Box::new(callback));
+    }
+
     pub fn on_render<F>(&mut self, callback: F)
     where
         F: FnMut() + 'a,
@@ -53,6 +62,10 @@ impl<'a> App<'a> {
 
             if let Some(cb) = self.render_callback.as_mut() {
                 cb();
+            }
+
+            if let Some(cb) = self.pre_render_callback.as_mut() {
+                cb(&mut self.shapes, &self.renderer);
             }
 
             for shape in &mut self.shapes {
