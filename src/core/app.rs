@@ -1,11 +1,12 @@
 use crate::core::renderer::{Renderable, Renderer};
 use crate::core::Window;
+use crate::graphics2d::shapes::ShapeRenderable;
 
 pub struct App<'a> {
     pub window: Box<Window>,
     renderer: Renderer,
-    shapes: Vec<Box<dyn Renderable>>,
-    pre_render_callback: Option<Box<dyn FnMut(&mut [Box<dyn Renderable>], &Renderer) + 'a>>,
+    shapes: Vec<ShapeRenderable>,
+    pre_render_callback: Option<Box<dyn FnMut(&mut [ShapeRenderable], &Renderer) + 'a>>,
     render_callback: Option<Box<dyn FnMut(&Renderer) + 'a>>,
 }
 
@@ -25,25 +26,25 @@ impl<'a> App<'a> {
         &self.renderer
     }
 
-    pub fn add_shape(&mut self, shape: impl Renderable + 'static) {
-        self.shapes.push(Box::new(shape));
+    pub fn add_shape(&mut self, shape: ShapeRenderable) {
+        self.shapes.push(shape);
     }
 
-    pub fn add_shapes<R: Renderable + 'static>(&mut self, shapes: Vec<R>) {
-        self.shapes.extend(shapes.into_iter().map(|s| Box::new(s) as Box<dyn Renderable>));
+    pub fn add_shapes(&mut self, shapes: Vec<ShapeRenderable>) {
+        self.shapes.extend(shapes);
     }
 
-    pub fn shapes(&self) -> &[Box<dyn Renderable>] {
+    pub fn shapes(&self) -> &[ShapeRenderable] {
         &self.shapes
     }
 
-    pub fn shapes_mut(&mut self) -> &mut [Box<dyn Renderable>] {
+    pub fn shapes_mut(&mut self) -> &mut [ShapeRenderable] {
         &mut self.shapes
     }
 
     pub fn on_pre_render<F>(&mut self, callback: F)
     where
-        F: FnMut(&mut [Box<dyn Renderable>], &Renderer) + 'a,
+        F: FnMut(&mut [ShapeRenderable], &Renderer) + 'a,
     {
         self.pre_render_callback = Some(Box::new(callback));
     }
