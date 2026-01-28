@@ -1,6 +1,6 @@
 [package]
 name = "wilhelm_renderer"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Anwar Ludin <anwar.ludin@algonents.com>"]
 license = "MIT"
@@ -22,7 +22,6 @@ exclude = [
     # FreeType bundled source - exclude files not needed for CMake build
     "cpp/freetype-2.13.2/docs/",
     "cpp/freetype-2.13.2/tests/",
-    "cpp/freetype-2.13.2/builds/",
     "cpp/freetype-2.13.2/subprojects/",
     "cpp/freetype-2.13.2/devel/",
     "cpp/freetype-2.13.2/objs/",
@@ -33,8 +32,18 @@ exclude = [
     "cpp/freetype-2.13.2/meson_options.txt",
     "cpp/freetype-2.13.2/modules.cfg",
     "cpp/freetype-2.13.2/vms_make.com",
-    "cpp/freetype-2.13.2/README",
     "cpp/freetype-2.13.2/README.git",
+    # FreeType builds - keep cmake, unix, windows, wince, mac; exclude rest
+    "cpp/freetype-2.13.2/builds/amiga/",
+    "cpp/freetype-2.13.2/builds/ansi/",
+    "cpp/freetype-2.13.2/builds/atari/",
+    "cpp/freetype-2.13.2/builds/beos/",
+    "cpp/freetype-2.13.2/builds/dos/",
+    "cpp/freetype-2.13.2/builds/meson/",
+    "cpp/freetype-2.13.2/builds/os2/",
+    "cpp/freetype-2.13.2/builds/symbian/",
+    "cpp/freetype-2.13.2/builds/vms/",
+    "cpp/freetype-2.13.2/builds/*.mk",
 ]
 
 [dependencies]
