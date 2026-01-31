@@ -9,7 +9,7 @@ mod texture;
 mod image;
 pub mod engine;
 mod font;
-mod projection;
+mod camera;
 
 pub use self::font::{FontAtlas, GlyphInfo};
 pub use self::geometry::Attribute;
@@ -24,5 +24,5 @@ pub use self::app::App;
 pub use self::color::Color;
 pub use texture::generate_texture_from_image;
 pub use image::load_image;
-pub use self::projection::{Projection, IdentityProjection, Camera2D};
+pub use self::camera::{Projection, IdentityProjection, Camera2D};
 pub use self::engine::glfw::GLFWwindow;
