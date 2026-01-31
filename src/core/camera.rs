@@ -1,7 +1,7 @@
-//! Coordinate projection and camera system for 2D rendering.
+//! 2D camera system for pan, zoom, and coordinate transformations.
 //!
-//! This module provides traits and implementations for transforming between
-//! world coordinates and screen coordinates.
+//! Provides [`Camera2D`] for managing the visible region of a 2D world,
+//! and the [`Projection`] trait for custom coordinate transformations.
 
 use crate::core::engine::opengl::Vec2;
 
