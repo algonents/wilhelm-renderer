@@ -57,6 +57,7 @@ cd examples/bouncing_balls && cargo run
 - **Interior Mutability**: Window uses `Rc<Cell<>>` for shared state across callbacks
 - **Component-Based Meshes**: Mesh = Geometry + Shader + Transform
 - **Callback-Driven App Loop**: App uses closures for render logic
+- **Box<Window> for FFI Stability**: `Window::new()` returns `Box<Window>` and `App` stores `Box<Window>` because GLFW callbacks receive a raw pointer to the Window (via `glfw_set_window_user_pointer`). The Box ensures a stable heap address that won't invalidate when App is moved.
 
 ### Performance Architecture
 
@@ -69,21 +70,21 @@ The current architecture supports scaling to 10,000+ shapes through evolutionary
 - Simple VAO/VBO abstraction without deep hierarchies blocking optimization
 
 **Current Limitation:**
-`ShapeRenderable` uses 1 draw call per shape, which becomes a CPU bottleneck at high counts.
+The high-level `ShapeRenderable` API uses 1 draw call per shape, which becomes a CPU bottleneck at high counts. This limitation is in the convenience API, not the core engine.
+
+**Escape Hatch for Power Users:**
+`App::on_render()` provides direct `Renderer` access, allowing clients to bypass per-shape rendering and implement custom batching when needed. The existing instancing infrastructure (`Geometry::enable_instancing_xy`, `update_instance_xy`, `update_instance_colors`) is fully functional for manual batching.
 
 **Scaling Strategy (additive, not rewrite):**
 
-1. **Extended Instancing**: Add per-instance rotation, color, scale attributes to the existing instancing infrastructure. Mechanical change to VBO layout and shaders.
+1. **Automatic Batching in App::run()** (preferred approach): Group shapes by type and render with instancing. Requires:
+   - Normalized (unit) prototype geometries: unit circle (r=1), unit rectangle (1x1)
+   - Per-instance scale attribute (location 3 in shader) to transform unit geometry to actual size
+   - Grouping logic in `App::run()` to collect (position, scale, color) per shape type
+   - Batchable: Circle, Ellipse, Rectangle, Point
+   - Non-batchable (unique geometry): Line, Polyline, Polygon, Arc, Text, Image
 
-2. **BatchRenderer** (future component): A new renderer that collects similar shapes and issues minimal draw calls:
-   ```rust
-   // Conceptual API - coexists with ShapeRenderable
-   let mut batch = BatchRenderer::new();
-   batch.add_circles(&circle_data);  // 10k circles
-   batch.add_lines(&line_data);      // 5k lines
-   batch.render(&renderer);          // 2 draw calls total
-   ```
-   This is additive - existing `ShapeRenderable` code continues to work for simple cases.
+2. **Extended Instancing**: The shader (`shape.vert`) already supports per-instance position (loc 1) and color (loc 2). Adding per-instance scale (loc 3) is mechanical.
 
 3. **Frustum Culling**: CPU-side viewport bounds check before batching, with optional spatial index (quadtree).
 
