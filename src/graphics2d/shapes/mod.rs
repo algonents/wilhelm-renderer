@@ -43,15 +43,13 @@ impl MultiPoint {
 
 #[derive(Clone, Copy)]
 pub struct Line {
-    pub x1: f32,
-    pub y1: f32,
-    pub x2: f32,
-    pub y2: f32,
+    pub start: (f32, f32),
+    pub end: (f32, f32),
 }
 
 impl Line {
-    pub fn new(x1: f32, y1: f32, x2: f32, y2: f32) -> Self {
-        Self { x1, y1, x2, y2 }
+    pub fn new(start: (f32, f32), end: (f32, f32)) -> Self {
+        Self { start, end }
     }
 }
 

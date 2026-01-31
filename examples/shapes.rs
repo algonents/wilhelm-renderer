@@ -67,7 +67,7 @@ fn main() {
         // Line from (100, 200) to (300, 250)
         ShapeRenderable::from_shape(
             0.0, 0.0,
-            ShapeKind::Line(Line::new(100.0, 200.0, 300.0, 250.0)),
+            ShapeKind::Line(Line::new((100.0, 200.0), (300.0, 250.0))),
             ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 5.0),
         ),
         // Polyline starting at (100, 300)

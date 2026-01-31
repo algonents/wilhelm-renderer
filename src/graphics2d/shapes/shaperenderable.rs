@@ -330,9 +330,11 @@ impl ShapeRenderable {
         stroke: Color,
         stroke_width: f32,
     ) -> Self {
-        // Line geometry uses its own local coordinates (x1,y1) to (x2,y2)
+        // Line geometry uses its own local coordinates (start to end)
         // Position (x, y) places the line in world space
-        let geometry = ShapeRenderable::line_geometry(shape.x1, shape.y1, shape.x2, shape.y2, stroke_width);
+        let (x1, y1) = shape.start;
+        let (x2, y2) = shape.end;
+        let geometry = ShapeRenderable::line_geometry(x1, y1, x2, y2, stroke_width);
         let mesh = Mesh::with_color(default_shader(), geometry, Some(stroke));
 
         ShapeRenderable::new(x, y, mesh, ShapeKind::Line(shape))
@@ -975,10 +977,10 @@ impl ToSvg for ShapeRenderable {
             ShapeKind::Line(line) => {
                 format!(
                     r#"<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{color}" stroke-width="1"/>"#,
-                    x1 = self.x + line.x1,
-                    y1 = self.y + line.y1,
-                    x2 = self.x + line.x2,
-                    y2 = self.y + line.y2,
+                    x1 = self.x + line.start.0,
+                    y1 = self.y + line.start.1,
+                    x2 = self.x + line.end.0,
+                    y2 = self.y + line.end.1,
                     color = self.svg_color(),
                 )
             }
