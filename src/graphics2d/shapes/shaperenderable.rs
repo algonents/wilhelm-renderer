@@ -323,28 +323,19 @@ impl ShapeRenderable {
         ShapeRenderable::new(x0, y0, mesh, ShapeKind::MultiPoint(multi_point))
     }
 
-    /*
-    pub fn simple_line(x1: GLfloat, y1: GLfloat, x2: GLfloat, y2: GLfloat, stroke: Color) -> Self {
-        ShapeRenderable::line(x1, y1, x2, y2, stroke, 1.0)
-    }*/
-
     fn line(
-        x1: GLfloat,
-        y1: GLfloat,
+        x: GLfloat,
+        y: GLfloat,
         shape: Line,
         stroke: Color,
         stroke_width: f32,
     ) -> Self {
-
-        // To build the geometry, shift line coordinates so that the line starts at (0,0)
-        let rel_x2 = shape.x2 - x1;
-        let rel_y2 = shape.y2 - y1;
-
-        let geometry = ShapeRenderable::line_geometry(0.0, 0.0, rel_x2, rel_y2, stroke_width);
+        // Line geometry uses its own local coordinates (x1,y1) to (x2,y2)
+        // Position (x, y) places the line in world space
+        let geometry = ShapeRenderable::line_geometry(shape.x1, shape.y1, shape.x2, shape.y2, stroke_width);
         let mesh = Mesh::with_color(default_shader(), geometry, Some(stroke));
 
-        // Drawable positioned at the original start point (x1, y1)
-        ShapeRenderable::new(x1, y1, mesh, ShapeKind::Line(shape))
+        ShapeRenderable::new(x, y, mesh, ShapeKind::Line(shape))
     }
 
     fn polyline(
@@ -984,10 +975,10 @@ impl ToSvg for ShapeRenderable {
             ShapeKind::Line(line) => {
                 format!(
                     r#"<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{color}" stroke-width="1"/>"#,
-                    x1 = self.x,
-                    y1 = self.y,
-                    x2 = line.x2,
-                    y2 = line.y2,
+                    x1 = self.x + line.x1,
+                    y1 = self.y + line.y1,
+                    x2 = self.x + line.x2,
+                    y2 = self.y + line.y2,
                     color = self.svg_color(),
                 )
             }

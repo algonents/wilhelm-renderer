@@ -66,9 +66,9 @@ fn main() {
         ),
         // Line from (100, 200) to (300, 250)
         ShapeRenderable::from_shape(
-            100.0, 200.0,
-            ShapeKind::Line(Line::new(300.0, 250.0)),
-            ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 1.0),
+            0.0, 0.0,
+            ShapeKind::Line(Line::new(100.0, 200.0, 300.0, 250.0)),
+            ShapeStyle::stroke(Color::from_rgb(0.0, 1.0, 0.0), 5.0),
         ),
         // Polyline starting at (100, 300)
         ShapeRenderable::from_shape(
@@ -143,7 +143,7 @@ fn main() {
             ShapeStyle::fill(Color::from_rgb(0.0, 1.0, 0.0)),
         ),
         // Images
-        ShapeRenderable::image_with_size(200.0, 520.0, "images/smiley.png", 40.0, 40.0),
+        ShapeRenderable::image_with_size(200.0, 540.0, "images/smiley.png", 40.0, 40.0),
         ShapeRenderable::image(400.0, 500.0, "images/bunny.png"),
     ]);
 

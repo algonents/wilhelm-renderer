@@ -14,12 +14,12 @@ cargo build
 
 # Run examples
 cargo run --example shapes
-cargo run --example shapes_with_zoom
+cargo run --example shapes_scaled
 cargo run --example triangle
 cargo run --example instancing
 
 # Run standalone example projects
-cd examples/bouncing_balls && cargo run
+  
 ```
 
 ### Build Requirements
