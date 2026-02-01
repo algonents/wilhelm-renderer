@@ -42,11 +42,15 @@ fn main() {
         ShapeStyle::fill(Color::from_rgb(0.3, 0.3, 1.0)),
     );
 
-    // Rectangle with combined scale and rotation
+    // Rectangle with combined scale, rotation, and stroke
     let mut scaled_rotated = ShapeRenderable::from_shape(
         550.0, 350.0,
         ShapeKind::Rectangle(Rectangle::new(80.0, 40.0)),
-        ShapeStyle::fill(Color::from_rgb(1.0, 1.0, 0.3)),
+        ShapeStyle::fill_and_stroke(
+            Color::from_rgb(1.0, 1.0, 0.3),
+            Color::from_rgb(0.8, 0.2, 0.2),
+            3.0,
+        ),
     );
     scaled_rotated.set_rotation(PI / 3.0); // 60 degrees
     scaled_rotated.set_scale(1.5);
