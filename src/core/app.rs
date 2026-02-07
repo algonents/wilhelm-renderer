@@ -120,6 +120,18 @@ impl<'a> App<'a> {
         }
     }
 
+    /// Set minimum and maximum zoom scale limits.
+    ///
+    /// When set, scroll zoom is clamped to stay within these bounds.
+    /// Pass `None` for either limit to leave it unbounded.
+    ///
+    /// No-op if [`enable_camera`](Self::enable_camera) has not been called.
+    pub fn set_camera_zoom_limits(&mut self, min: Option<f32>, max: Option<f32>) {
+        if let Some(ctrl) = &self.camera_controller {
+            ctrl.borrow_mut().set_zoom_limits(min, max);
+        }
+    }
+
     pub fn run(mut self) {
         let mut last_time = self.renderer.get_time();
 

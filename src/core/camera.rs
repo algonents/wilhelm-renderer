@@ -211,6 +211,8 @@ pub struct CameraController {
     is_dragging: bool,
     last_cursor_pos: Vec2,
     zoom_sensitivity: f32,
+    min_scale: Option<f32>,
+    max_scale: Option<f32>,
 }
 
 impl CameraController {
@@ -226,6 +228,8 @@ impl CameraController {
             is_dragging: false,
             last_cursor_pos: Vec2::new(0.0, 0.0),
             zoom_sensitivity: 1.1,
+            min_scale: None,
+            max_scale: None,
         }
     }
 
@@ -276,6 +280,26 @@ impl CameraController {
         self.zoom_sensitivity = sensitivity;
     }
 
+    /// Set minimum and maximum zoom scale limits.
+    ///
+    /// When set, scroll zoom is clamped to stay within these bounds.
+    /// Pass `None` for either limit to leave it unbounded.
+    pub fn set_zoom_limits(&mut self, min: Option<f32>, max: Option<f32>) {
+        self.min_scale = min;
+        self.max_scale = max;
+    }
+
+    fn clamp_scale(&self, scale: f32) -> f32 {
+        let mut s = scale;
+        if let Some(min) = self.min_scale {
+            s = s.max(min);
+        }
+        if let Some(max) = self.max_scale {
+            s = s.min(max);
+        }
+        s
+    }
+
     /// Handle mouse button events. Call this from `Window::on_mouse_button`.
     pub fn on_mouse_button(&mut self, button: i32, action: i32) {
         if button == GLFW_MOUSE_BUTTON_LEFT {
@@ -315,6 +339,11 @@ impl CameraController {
         };
 
         if self.smoothness > 0.0 {
+            let new_target = self.clamp_scale(self.target_scale * factor);
+            if (new_target - self.target_scale).abs() < f32::EPSILON {
+                return;
+            }
+
             // Compute world point under cursor using target state
             let screen_size = self.camera.screen_size();
             let world_before = Vec2 {
@@ -324,7 +353,7 @@ impl CameraController {
                     + self.target_center.y,
             };
 
-            self.target_scale *= factor;
+            self.target_scale = new_target;
 
             let world_after = Vec2 {
                 x: (self.last_cursor_pos.x - screen_size.x * 0.5) / self.target_scale
@@ -336,7 +365,11 @@ impl CameraController {
             self.target_center.x += world_before.x - world_after.x;
             self.target_center.y += world_before.y - world_after.y;
         } else {
-            self.camera.zoom_at(factor, self.last_cursor_pos);
+            let new_scale = self.clamp_scale(self.camera.scale() * factor);
+            let actual_factor = new_scale / self.camera.scale();
+            if (actual_factor - 1.0).abs() > f32::EPSILON {
+                self.camera.zoom_at(actual_factor, self.last_cursor_pos);
+            }
         }
     }
 
