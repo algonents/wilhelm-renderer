@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.0] - 2026-02-07
+
+### Added
+
+- **`App.enable_camera(camera)`** — creates a `CameraController` internally and wires all window callbacks (scroll, cursor, mouse button, resize). Eliminates `Rc<RefCell<>>` from client code.
+- **`App.set_camera_smoothness(value)`** — opt-in exponential interpolation for smooth zoom/pan. Off by default; typical range 5–12.
+- **`App.set_camera_zoom_sensitivity(value)`** — configure zoom speed without accessing the controller directly.
+- **`CameraController.set_smoothness(value)`** / **`CameraController.update(dt)`** — animation state on the controller for smooth camera transitions.
+
+### Changed
+
+- **`on_render` callback now receives `Option<&Camera2D>`** as a second parameter. Camera examples get the camera directly from the callback instead of capturing shared references.
+- **`App.run()` now tracks delta time** and calls `CameraController.update(dt)` each frame when a camera is enabled.
+
+### Removed
+
+- **`App.set_camera_controller()`** — replaced by `App.enable_camera()`.
+- **`examples/camera.rs`** — obsolete `thread_local!`-based camera demo, superseded by the waypoints examples.
+
+### Improvements
+
+- Camera setup reduced from ~40 lines of `Rc<RefCell<>>` boilerplate to 3 lines: `enable_camera()`, `set_camera_smoothness()`, and `on_render(|renderer, camera| { ... })`.
+- Smooth animation is fully backwards-compatible: when smoothness is 0 (default), all camera updates are instant and `update(dt)` is a no-op.
+
 ## [0.5.0] - 2026-02-02
 
 ### Added
